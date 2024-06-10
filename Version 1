@@ -55,6 +55,12 @@ def apply_for_scholarship():
         print("Invalid input. Please enter a valid name.")
         return
     
+    # Check if applicant already exists in the queue
+    for existing_applicant in possible_scholars.queue:
+        if existing_applicant.name.lower() == name.lower():
+            print("You have already applied for a scholarship. Please proceed with passing your requirements.")
+            return
+    
     registered_in_lipa = input("Are you registered in Lipa? (yes/no): ").strip().lower() == "yes"
     is_college_student = input("Are you a college student? (yes/no): ").strip().lower() == "yes"
     
@@ -69,10 +75,6 @@ def apply_for_scholarship():
     print()
     
     if applicant.check_eligibility():
-        for existing_applicant in possible_scholars.queue:
-            if existing_applicant.name.lower() == applicant.name.lower():
-                print("You are already an applicant. Please proceed with passing your requirements.")
-                return
         possible_scholars.add_to_queue(applicant)
         print("You are eligible! Please proceed with passing your requirements.")
     else:
@@ -128,13 +130,14 @@ def pass_requirement():
                         break
                     else:
                         print("Invalid option. Please select a valid option.")
+                if not applicant.requirements.incomplete:
+                    print("\nYou passed all the requirements! Pending for approval.")
                 return
         print("No applicant found with that name.")
     else:
         print("There are no current applicants.")
 
 possible_scholars = Queue()
-scholars_college = Queue()
 
 while True:
     print("\nWelcome to MLBB's Modernized Financial Support Queuing Service!")
