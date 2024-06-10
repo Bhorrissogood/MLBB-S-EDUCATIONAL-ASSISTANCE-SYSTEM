@@ -1,0 +1,155 @@
+from collections import deque
+import time
+import sys
+
+class PersonalDetails:
+    def __init__(self, name, registered_in_lipa, is_college_student):
+        self.name = name
+        self.registered_in_lipa = registered_in_lipa
+        self.is_college_student = is_college_student
+        self.requirements = Requirements() if self.check_eligibility() else None
+    
+    def check_eligibility(self):
+        return self.is_college_student and self.registered_in_lipa
+    
+    def get_details(self):
+        return f"Name: {self.name}, Registered in Lipa: {'Yes' if self.registered_in_lipa else 'No'}, College Student: {'Yes' if self.is_college_student else 'No'}"
+
+class Requirements:
+    def __init__(self):
+        self.incomplete = ["CTC Of Grades", "Certificate of Indigency", "RAF", "Valid ID"]
+    
+    def check_requirements(self):
+        return "All requirements are complete." if not self.incomplete else f"Missing requirements: {', '.join(self.incomplete)}"
+    
+    def pass_requirement(self, requirement):
+        if requirement in self.incomplete:
+            self.incomplete.remove(requirement)
+
+class Queue:
+    def __init__(self):
+        self.queue = deque()
+    
+    def add_to_queue(self, student):
+        self.queue.append(student)
+    
+    def process_queue(self):
+        return self.queue.popleft() if self.queue else None
+    
+    def get_size(self):
+        return len(self.queue)
+    
+    def view_queue(self):
+        for idx, student in enumerate(self.queue, 1):
+            print(f"{idx}. {student.get_details()}")
+
+def process_applicant():
+    name = input("Please enter your full name with middle initial: ")
+    if not name or any(char.isdigit() for char in name):
+        print("Invalid input. Please enter a valid name.")
+        return
+    registered_in_lipa = input("Are you registered in Lipa? (yes/no): ").strip().lower() == "yes"
+    is_college_student = input("Are you a college student? (yes/no): ").strip().lower() == "yes"
+    
+    applicant = PersonalDetails(name, registered_in_lipa, is_college_student)
+    print("\nApplicant Details:")
+    print(applicant.get_details())
+    print("Checking eligibility", end="")
+    for _ in range(10):
+        sys.stdout.write(".")
+        sys.stdout.flush()
+        time.sleep(0.2)
+    print()
+    
+    if applicant.check_eligibility():
+        for existing_applicant in possible_scholars.queue:
+            if existing_applicant.name.lower() == applicant.name.lower():
+                print("You are already an applicant. Please proceed with passing your requirements.")
+                return
+        possible_scholars.add_to_queue(applicant)
+        print("You are eligible! Please proceed with passing your requirements.")
+    else:
+        print("Sorry, you are not eligible. Only college students registered in Lipa can apply.")
+
+def check_requirements():
+    if possible_scholars.queue:
+        print("Please select your name from the list: ")
+        possible_scholars.view_queue()
+        selected_name = input("Enter the name exactly as shown: ")
+        for applicant in possible_scholars.queue:
+            if applicant.name == selected_name:
+                print(f"{applicant.get_details()}")
+                print(applicant.requirements.check_requirements())
+                return applicant
+        print("Applicant not found.")
+    else:
+        print("No current applicants.")
+    return None
+
+def pass_requirements():
+    applicant = check_requirements()
+    if applicant:
+        while applicant.requirements.incomplete:
+            print("A. CTC Of Grades\nB. Certificate of Indigency\nC. RAF\nD. Valid ID\nE. Exit")
+            passing = input("Please select the file you want to pass: ").upper()
+            if passing == "A":
+                print_processing_message()
+                applicant.requirements.pass_requirement("CTC Of Grades")
+            elif passing == "B":
+                print_processing_message()
+                applicant.requirements.pass_requirement("Certificate of Indigency")
+            elif passing == "C":
+                print_processing_message()
+                applicant.requirements.pass_requirement("RAF")
+            elif passing == "D":
+                print_processing_message()
+                applicant.requirements.pass_requirement("Valid ID")
+            elif passing == "E":
+                break
+            else:
+                print("Invalid Response.")
+            if not applicant.requirements.incomplete:
+                print(applicant.requirements.check_requirements())
+                print("Congratulations, you're officially a scholar!")
+                scholars_college.add_to_queue(applicant)
+                possible_scholars.queue.remove(applicant)
+                break
+
+def view_scholars():
+    if scholars_college.queue:
+        print("College Scholars:")
+        for idx, scholar in enumerate(scholars_college.queue, 1):
+            print(f"{idx}. {scholar.name}")
+    else:
+        print("No current college scholars.")
+
+def print_processing_message():
+    print("Processing", end="")
+    for _ in range(10):
+        sys.stdout.write(".")
+        sys.stdout.flush()
+        time.sleep(0.2)
+    print()
+
+possible_scholars = Queue()
+scholars_college = Queue()
+
+while True:
+    print("Welcome to MLBB's Modernized Financial Support Queuing Service!")
+    print("A. Apply for a scholarship\nB. Check Requirements\nC. Pass Requirements\nD. View Scholars\nE. Exit")
+    answer = input("Please select an option: ").strip().lower()
+    
+    if answer == "a":
+        process_applicant()
+    elif answer == "b":
+        check_requirements()
+    elif answer == "c":
+        pass_requirements()
+    elif answer == "d":
+        view_scholars()
+    elif answer == "e":
+        print("Thank you for using our system. Have a great day!")
+        break
+    else:
+        print("Invalid response. Please select a valid option.")
+    print("------------------------------------------------------------")
