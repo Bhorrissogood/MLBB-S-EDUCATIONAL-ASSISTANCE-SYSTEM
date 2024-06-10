@@ -6,22 +6,26 @@ class PersonalDetails:
     def __init__(self, name, registered_in_lipa, is_college_student):
         self.name = name
         self.registered_in_lipa = registered_in_lipa
-        self.is_college_student = is_college_student
+        self.is_college_student = is_college_student/is_shs_student_student
         self.requirements = Requirements() if self.check_eligibility() else None
-    
+
     def check_eligibility(self):
         return self.is_college_student and self.registered_in_lipa
-    
+    def check_eligibility(self):
+        return self.is_shs_student_student and self.registered_in_lipa
+
     def get_details(self):
         return f"Name: {self.name}, Registered in Lipa: {'Yes' if self.registered_in_lipa else 'No'}, College Student: {'Yes' if self.is_college_student else 'No'}"
+    def get_details(self):
+        return f"Name: {self.name}, Registered in Lipa: {'Yes' if self.registered_in_lipa else 'No'}, shs Student: {'Yes' if self.is_shs_student else 'No'}"    
 
 class Requirements:
     def __init__(self):
         self.incomplete = ["CTC Of Grades", "Certificate of Indigency", "RAF", "Valid ID"]
-    
+
     def check_requirements(self):
         return "All requirements are complete." if not self.incomplete else f"Missing requirements: {', '.join(self.incomplete)}"
-    
+
     def pass_requirement(self, requirement):
         if requirement in self.incomplete:
             self.incomplete.remove(requirement)
@@ -29,16 +33,16 @@ class Requirements:
 class Queue:
     def __init__(self):
         self.queue = deque()
-    
+
     def add_to_queue(self, student):
         self.queue.append(student)
-    
+
     def process_queue(self):
         return self.queue.popleft() if self.queue else None
-    
+
     def get_size(self):
         return len(self.queue)
-    
+
     def view_queue(self):
         for idx, student in enumerate(self.queue, 1):
             print(f"{idx}. {student.get_details()}")
@@ -49,9 +53,9 @@ def process_applicant():
         print("Invalid input. Please enter a valid name.")
         return
     registered_in_lipa = input("Are you registered in Lipa? (yes/no): ").strip().lower() == "yes"
-    is_college_student = input("Are you a college student? (yes/no): ").strip().lower() == "yes"
-    
-    applicant = PersonalDetails(name, registered_in_lipa, is_college_student)
+    is_college_student = input("Are you a college or shs student? (yes/no): ").strip().lower() == "yes"
+
+    applicant = PersonalDetails(name, registered_in_lipa, is_college_student or is_shs_student)
     print("\nApplicant Details:")
     print(applicant.get_details())
     print("Checking eligibility", end="")
@@ -60,7 +64,16 @@ def process_applicant():
         sys.stdout.flush()
         time.sleep(0.2)
     print()
-    
+    applicant = PersonalDetails(name, registered_in_lipa, is_shs_student)
+    print("\nApplicant Details:")
+    print(applicant.get_details())
+    print("Checking eligibility", end="")
+    for _ in range(10):
+        sys.stdout.write(".")
+        sys.stdout.flush()
+        time.sleep(0.2)
+    print()
+
     if applicant.check_eligibility():
         for existing_applicant in possible_scholars.queue:
             if existing_applicant.name.lower() == applicant.name.lower():
@@ -69,7 +82,7 @@ def process_applicant():
         possible_scholars.add_to_queue(applicant)
         print("You are eligible! Please proceed with passing your requirements.")
     else:
-        print("Sorry, you are not eligible. Only college students registered in Lipa can apply.")
+        print("Sorry, you are not eligible. Only college or shs students registered in Lipa can apply.")
 
 def check_requirements():
     if possible_scholars.queue:
@@ -85,6 +98,7 @@ def check_requirements():
     else:
         print("No current applicants.")
     return None
+    
 
 def pass_requirements():
     applicant = check_requirements()
@@ -122,6 +136,13 @@ def view_scholars():
             print(f"{idx}. {scholar.name}")
     else:
         print("No current college scholars.")
+def view_scholars():
+    if scholars_shs.queue:
+        print("shs Scholars:")
+        for idx, scholar in enumerate(scholars_shs.queue, 1):
+            print(f"{idx}. {scholar.name}")
+    else:
+        print("No current shs scholars.")        
 
 def print_processing_message():
     print("Processing", end="")
@@ -133,12 +154,13 @@ def print_processing_message():
 
 possible_scholars = Queue()
 scholars_college = Queue()
+scholars_shs = Queue()
 
 while True:
     print("Welcome to MLBB's Modernized Financial Support Queuing Service!")
     print("A. Apply for a scholarship\nB. Check Requirements\nC. Pass Requirements\nD. View Scholars\nE. Exit")
     answer = input("Please select an option: ").strip().lower()
-    
+
     if answer == "a":
         process_applicant()
     elif answer == "b":
@@ -148,6 +170,7 @@ while True:
     elif answer == "d":
         view_scholars()
     elif answer == "e":
+        
         print("Thank you for using our system. Have a great day!")
         break
     else:
