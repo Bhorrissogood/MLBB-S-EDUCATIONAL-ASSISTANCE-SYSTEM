@@ -1,1 +1,8 @@
+from collections import deque
+import time
+import sys
 
+class PersonalDetails:
+  def__init__(self, name, grafe_level, barangay):
+     self.name = name
+     self.barangay = barangay
