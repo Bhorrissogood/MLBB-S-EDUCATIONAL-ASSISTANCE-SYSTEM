@@ -78,8 +78,272 @@ while True:
     index = 0
     if answer == "a":
         name = input("Please enter your full name with middle initial: ")
-        if name == "" or any(char.isdigit() for char in name):
-            print("Invalid Input.")
+        from collections import deque
+import time
+import sys
+class PersonalDetails:
+    def __init__(self, name, grade_level,barangay):
+        self.name = name
+        self.barangay = barangay
+        self.grade_level = grade_level
+        self.requirements = None
+    def check_grade_level(self):
+        if self.grade_level == "SHS" or self.grade_level == "COLLEGE":
+            self.requirements = Requirements()
+            return True
+        return False
+    def check_barangay(self):
+        if self.barangay in self.requirements.barangay:
+            return True 
+        return False
+    def getDetails(self):
+        return f"Name: {self.name} ({self.grade_level}) from {self.barangay}"
+    
+class Requirements:
+    def __init__(self):
+        self.incomplete = ["CTC Of Grades","Certificate of Indigency","RAF","Valid Id"]
+        self.barangay = ["adya","anilao-labac","anilao labac","antipolo del norte","antipolo del sur",
+                         "bagong pook","balintawak","banaybanay","bolbok","bugtong na pulo","bulacnin","bulaklakan","calamias","cumba",
+                         "dagatan","duhatan","halang","inosloban","kayumanggi","latag","lodlod","lumbang",
+                         "mabini","malagonlong","malitlit","marauoy","mataas na lupa","munting pulo",
+                         "pagolingin bata","pagolingin east","pagolingin west","pangao","pinagkawitan","pinagtongulan","plaridel",
+                         "poblacion barangay 1","poblacion barangay 2","poblacion barangay 3","poblacion barangay 4","poblacion barangay 5",
+                         "poblacion barangay 6","poblacion barangay 7","poblacion barangay 8","poblacion barangay 9","poblacion barangay 9-a",
+                         "poblacion barangay 9 a","poblacion barangay 10","poblacion barangay 11","poblacion barangay 12","pusil","quezon, rizal",
+                         "sabang","sampaguita","san benito","san carlos","san celestino","san francisco","san guillermo","san jose","san lucas",
+                         "san salvador","san sebastian","santo nino","santo toribio","sapac","sico","talisay","tambo","tangob","tanguay","tibig","tipacan"]
+
+    def check_requirements(self):
+        if not self.incomplete:
+            return "Requirements Completed."
+        return self.incomplete
+    
+    def pass_CtcOfGrades(self,CtcOfGrades):
+        if CtcOfGrades in self.incomplete:
+            self.incomplete.remove(CtcOfGrades)
+ 
+    def pass_Indigency(self,Indigency):
+        if Indigency in self.incomplete:
+            self.incomplete.remove(Indigency)
+ 
+    def pass_Raf(self,Raf):
+        if Raf in self.incomplete:
+            self.incomplete.remove(Raf)
+ 
+    def pass_ValId(self,ValId):
+        if ValId  in self.incomplete:
+            self.incomplete.remove(ValId)
+class Queue:
+    def __init__(self):
+        self.queue = deque()
+ 
+    def addToQueue(self, student):
+        self.queue.append(student)
+ 
+    def processQueue(self):
+        return self.queue.popleft()
+        
+    def getSize(self):
+        return len(self.queue)
+    
+    
+possible_scholars = Queue()
+scholars_shs = Queue()
+scholars_college = Queue()
+
+while True:
+    print("Welcome to MLBB's Modernized Financial Support Queuing Service!")
+    print("A. Apply for a scholarship \nB. Requirements \nC. Current list of scholars \nD. Pay Out (Admin Access) \nE. Exit")
+    answer = str(input("Please select a function: ").lower())
+    index = 0
+    if answer == "a":
+        name = input("Please enter your full name with middle initial: ")
+        try:
+            if len(name.split()) < 3 or any(char.isdigit() for char in name):
+                raise ValueError("Invalid Input: Please Enter Your Full Name")
+        except ValueError as MLBB:
+            print(MLBB)
+            continue
+        barangay = input("Please enter your Barangay: ").lower()
+        grade_level = input("Please enter your current grade level (SHS or COLLEGE): ").upper()
+        applicant = PersonalDetails(name,grade_level,barangay)
+        print(applicant.getDetails())
+        print("Checking if elligible", end = "")
+        for i in range(10):
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            time.sleep(0.2)
+        print()
+        alr_in_list = None
+        if applicant.check_grade_level():
+            for name_in_pos in possible_scholars.queue:
+                if name_in_pos.name.lower() == applicant.name:
+                    alr_in_list =name_in_pos.name
+                    print("Already an applicant. Please proceed with passing of Requirements.")
+                    break
+            if not alr_in_list:
+                if applicant.check_barangay():
+                    possible_scholars.addToQueue(applicant)
+                    print("Elligible. Please proceed with passing of requirements")
+                else:
+                    print("Not Elligible. Only students from Lipa City can register")
+        else:
+            print(" Not Elligible. Only students from Lipa City can register")
+ 
+    elif answer =="b":
+        remove = None
+        found = False
+        print("1. Check Requirements \n2. Pass Requirements ")
+        try:
+            req = int(input("Please enter a function: "))
+        except ValueError:
+            print("Invalid Answer.")
+            continue
+        if req == 1:
+            if possible_scholars.queue:
+                print("Please select your name from the list: ")
+                for Name in possible_scholars.queue:
+                    index+=1
+                    print(f"Applicant {index}: {Name.getDetails()}")
+                pos_sch = input()
+                for checking in possible_scholars.queue:
+                        if checking.name == pos_sch:
+                            print(checking.getDetails())
+                            print("Missing Requirements: ",checking.requirements.check_requirements())
+                            found = True
+                            break
+                if found == False:
+                    print(f"No {pos_sch} found in the list.")   
+            else:
+                print("No current applicant.")
+                continue
+ 
+        if req == 2:
+            index = 0
+            if possible_scholars.queue:
+                print("Please select your name from the list: ")
+                for Name in possible_scholars.queue:
+                    index+=1
+                    print(f"Applicant {index}: {Name.getDetails()}")
+                appl = input()
+                index = 0
+                for check in possible_scholars.queue:
+                        index+=1
+                        if check.name == appl:
+                            found = True
+                            while check.requirements.incomplete:
+                                print("A. CTC Of Grades \nB. Certificade of Indigency \nC. RAF \nD. Valid ID \nE. Exit")
+                                passing = input("Please select the file you want to pass: ").upper()
+                                if passing == "A":
+                                    print("Processing", end = "")
+                                    for i in range(10):
+                                        sys.stdout.write(".")
+                                        sys.stdout.flush()
+                                        time.sleep(0.2)
+                                    print()
+                                    check.requirements.pass_CtcOfGrades("CTC Of Grades")
+                                    
+                                elif passing == "B":
+                                    print("Processing", end = "")
+                                    for i in range(10):
+                                        sys.stdout.write(".")
+                                        sys.stdout.flush()
+                                        time.sleep(0.2)
+                                    print()
+                                    check.requirements.pass_Indigency("Certificate of Indigency")
+                                    
+                                elif passing == "C":
+                                    print("Processing", end = "")
+                                    for i in range(10):
+                                        sys.stdout.write(".")
+                                        sys.stdout.flush()
+                                        time.sleep(0.2)
+                                    print()
+                                    check.requirements.pass_Raf("RAF")
+ 
+                                elif passing == "D":
+                                    print("Processing", end = "")
+                                    for i in range(10):
+                                        sys.stdout.write(".")
+                                        sys.stdout.flush()
+                                        time.sleep(0.2)
+                                    print()
+                                    check.requirements.pass_ValId("Valid Id")
+                                elif passing == "E":
+                                    break
+                                else:
+                                    print("Invalid Response.")
+                                if not check.requirements.incomplete:
+                                    print(check.requirements.check_requirements())
+                                    print("Congratulations, you're officially a scholar!")
+                                    if check.grade_level == "SHS":
+                                        scholars_shs.addToQueue(check)
+                                    elif check.grade_level =="COLLEGE":
+                                        scholars_college.addToQueue(check)  
+                                    remove = check 
+                                    break
+                if found == False:
+                    print(f"No {appl} found in the list.")   
+            else:
+                print("No current applicant.")
+        if remove:
+            possible_scholars.queue.remove(remove)
+            remove = None
+        
+    elif answer == "c":
+        if scholars_shs.queue:
+            for current_scholars in range(scholars_shs.getSize()):
+                print(f"SHS Beneficiaries {current_scholars+1}: {scholars_shs.queue[current_scholars].name}")
+        else:
+            print("No current SHS scholars.")
+
+        if scholars_college.queue:
+            for cur_scholars in range(scholars_college.getSize()):
+                print(f"College Beneficiaries {cur_scholars+1}: {scholars_college.queue[cur_scholars].name}")
+        else:
+            print("No current College scholars.")
+    elif answer =="d":
+        access = input("Please enter access code: ")
+        if access.lower() == "pasado":
+            print("SHS Beneficiaries:")
+            if scholars_shs.getSize() == 0:
+                print("No current scholars to receive assistance.")
+            else:
+                for x in range(scholars_shs.getSize()):
+                    print(f"Verifying {scholars_shs.processQueue().name}'s files")
+                    for i in range(15):
+                        sys.stdout.write(".")
+                        sys.stdout.flush()
+                        time.sleep(0.2)
+                    print()
+                    print("Requirements met.")
+                    print("Please spend your money wisely ^__^")
+            print("College Beneficiaries:")  
+            if scholars_college.getSize() == 0:
+                print("No current scholars to receive assistance.")
+            else:
+                for x in range(scholars_college.getSize()):
+                    print(f"Verifying {scholars_college.processQueue().name}'s files")
+                    for i in range(15):
+                        sys.stdout.write(".")
+                        sys.stdout.flush()
+                        time.sleep(0.2)
+                    print()
+                    print("Requirements met.")
+                    print("Please spend your money wisely ^__^")
+        else:
+            print("No code matches in our system.")
+    elif answer == "e":
+        print("Thank you for using our system. Bye <3")
+        break
+    else:
+        print("Invalid Response.")
+    print("------------------------------------------------------------")
+print("----------------------------------------------------------------")
+
+
+
+
             continue
         barangay = input("Please enter your Barangay: ").lower()
         grade_level = input("Please enter your current grade level (SHS or COLLEGE): ").upper()
