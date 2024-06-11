@@ -87,17 +87,7 @@ while True:
             if len(name.split()) < 3 or any(char.isdigit() for char in name):
                 print("Invalid Input: Full name must include a middle initial.")
                 continue
-            else:
-                break
-
-        while True:
             barangay = input("Please enter your Barangay: ").lower()
-            if barangay not in Requirements().barangay:
-                print("Invalid Barangay. Please enter a valid one.")
-                continue
-            else:
-                break
-        while True:
             grade_level = input("Please enter your current grade level (SHS or COLLEGE): ").upper()
             if grade_level not in ["SHS", "COLLEGE"]:
                 print("Invalid grade level. Please enter either 'SHS' or 'COLLEGE'.")
