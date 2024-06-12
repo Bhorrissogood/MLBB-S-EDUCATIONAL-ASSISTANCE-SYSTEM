@@ -83,7 +83,7 @@ while True:
     index = 0
     if answer == "a":
         while True:
-            name = input("Please enter your full name with middle initial: ")
+            name = input("Please enter your full name with middle name: ")
             if len(name.split()) < 3 or any(char.isdigit() for char in name):
                 print("Invalid Input: Full name must include a middle initial.")
                 continue
